@@ -6,7 +6,7 @@ import { Clock, Smartphone, Check, Zap } from "lucide-react";
 interface PackageCardProps {
   name: string;
   duration: string;
-  price: string;
+  price: number;
   features: string[];
   devices: number;
   bestValue?: boolean;
