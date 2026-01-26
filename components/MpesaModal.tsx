@@ -1,42 +1,72 @@
 "use client";
+import { useState } from "react";
 
-import { InternetPackage } from "@/types/package";
+export default function MpesaModal({ pkg, onClose }) {
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
 
-interface MpesaModalProps {
-  pkg: InternetPackage;
-  onClose: () => void;
-}
+  const handlePayment = async () => {
+    if (!phone) {
+      alert("Please enter your phone number");
+      return;
+    }
 
-export default function MpesaModal({ pkg, onClose }: MpesaModalProps) {
+    // 🔥 NORMALIZE NUMBER FOR SAFARICOM
+    const normalizedPhone = phone.startsWith("0")
+      ? "254" + phone.slice(1)
+      : phone.startsWith("+254")
+      ? phone.slice(1)
+      : phone;
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/mpesa/stk-push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: normalizedPhone,   // 👈 SEND NORMALIZED NUMBER
+          amount: pkg.price,
+          packageName: pkg.name,
+        }),
+      });
+
+      const data = await res.json();
+     alert(data.CustomerMessage || "STK Push sent to your phone. Enter your M-Pesa PIN.");
+
+
+      onClose();
+    } catch (error) {
+      console.error(error);
+      alert("Payment failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-white p-6">
-        <h2 className="text-xl font-bold">Pay with M-Pesa</h2>
-
-        <div className="mt-4 space-y-2">
-          <p><strong>Package:</strong> {pkg.name}</p>
-          <p><strong>Duration:</strong> {pkg.duration}</p>
-          <p className="text-lg font-bold">KSh {pkg.price}</p>
-        </div>
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+      <div className="bg-white p-6 rounded-xl w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Pay with M-Pesa</h2>
 
         <input
           type="tel"
           placeholder="07XXXXXXXX"
-          className="mt-4 w-full rounded-lg border px-4 py-2"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full border p-2 rounded-lg mb-4"
         />
 
-        <div className="mt-6 flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 rounded-lg border py-2"
-          >
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 border rounded-lg">
             Cancel
           </button>
-
           <button
-            className="flex-1 rounded-lg bg-green-600 py-2 font-semibold text-white hover:bg-green-700"
+            onClick={handlePayment}
+            disabled={loading}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg"
           >
-            Pay Now
+            {loading ? "Processing..." : "Pay Now"}
           </button>
         </div>
       </div>
