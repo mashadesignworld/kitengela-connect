@@ -48,6 +48,7 @@ export async function POST(req: Request) {
     );
 
     const data = await stkRes.json();
+    console.log("SAFARICOM RESPONSE:", data);
 
     return NextResponse.json(data);
   } catch (error) {

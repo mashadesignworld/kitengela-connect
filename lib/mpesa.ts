@@ -13,5 +13,6 @@ export async function getMpesaAccessToken() {
   );
 
   const data = await res.json();
+  console.log("🔑 ACCESS TOKEN RESPONSE:", data);
   return data.access_token;
 }
