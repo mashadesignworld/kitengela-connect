@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+model User {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  createdAt DateTime @default(now())
+  payments  Payment[]
+}
+
+model Payment {
+  id                String   @id @default(uuid())
+  checkoutRequestID String   @unique
+  amount            Float?
+  phoneNumber       String?
+  mpesaReceipt      String?
+  status            String
+  wifiAccessGranted Boolean  @default(false)
+  callbackData      Json
+  createdAt         DateTime @default(now())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
+}
