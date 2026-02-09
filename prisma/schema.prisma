@@ -28,3 +28,11 @@ model Payment {
   userId String?
   user   User? @relation(fields: [userId], references: [id])
 }
+
+model WifiSession {
+  id        String   @id @default(uuid())
+  paymentId String
+  phone     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

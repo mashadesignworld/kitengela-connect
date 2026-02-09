@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { grantWifiAccess } from "@/lib/wifiAccess";
 
 export async function POST(req: Request) {
   try {
@@ -74,6 +75,8 @@ export async function POST(req: Request) {
     // ── SUCCESS PATH ────────────────────────────────────────────────
     console.log("✅ Payment appears SUCCESSFUL (ResultCode = 0)");
 
+  
+    
     const metadata = stkCallback.CallbackMetadata?.Item || [];
     console.log("📋 CallbackMetadata items:", metadata);
 
@@ -129,6 +132,21 @@ export async function POST(req: Request) {
     });
 
     console.log("💾 SUCCESS payment saved/updated → ID:", payment.id);
+ 
+ if (!payment.wifiAccessGranted) {
+  await grantWifiAccess(payment.id);
+
+  await prisma.payment.update({
+    where: { id: payment.id },
+    data: { wifiAccessGranted: true },
+  });
+
+  console.log("📶 Wi-Fi access granted");
+} else {
+  console.log("🔁 Wi-Fi already granted — skipping");
+}
+
+
 
     return NextResponse.json({
       ResultCode: 0,
