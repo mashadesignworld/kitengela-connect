@@ -9,7 +9,7 @@ import { InternetPackage } from "@/types/package";
 export default function PackagesPage() {
   const [selectedPackage, setSelectedPackage] =
     useState<InternetPackage | null>(null);
-    
+
 const [checkoutRequestID, setCheckoutRequestID] = useState<string | null>(null);
 
   const [activeCategory, setActiveCategory] = useState<
@@ -67,7 +67,7 @@ const [checkoutRequestID, setCheckoutRequestID] = useState<string | null>(null);
       {/* PACKAGES */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {filteredPackages.map((pkg) => (
-          <PackageCard
+          <WifiPackage
             key={pkg.name}
             {...pkg}
             onBuy={() => setSelectedPackage(pkg)}

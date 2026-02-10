@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 
-interface PackageCard {
+interface WifiPackage {
   name: string;
   price: number;
 }
 
 interface MpesaModalProps {
-  pkg: Package;
+  pkg: WifiPackage;
   onClose: () => void;
   onCheckoutCreated: (checkoutRequestID: string) => void;
 }
