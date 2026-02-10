@@ -1,10 +1,22 @@
 "use client";
 import { useState } from "react";
 
-export default function MpesaModal({ pkg, onClose }) {
+interface PackageCard {
+  name: string;
+  price: number;
+}
+
+interface MpesaModalProps {
+  pkg: Package;
+  onClose: () => void;
+  onCheckoutCreated: (checkoutRequestID: string) => void;
+}
+
+export default function MpesaModal({ pkg, onClose, onCheckoutCreated }: MpesaModalProps) {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
+  if(loading) return; 
   const handlePayment = async () => {
     if (!phone) {
       alert("Please enter your phone number");
@@ -32,8 +44,17 @@ export default function MpesaModal({ pkg, onClose }) {
       });
 
       const data = await res.json();
-     alert(data.CustomerMessage || "STK Push sent to your phone. Enter your M-Pesa PIN.");
+     if (!data.checkoutRequestID) {
+  alert("Failed to initiate payment");
+  return;
+}
 
+onCheckoutCreated(data.checkoutRequestID);
+
+alert(
+  data.CustomerMessage ||
+    "STK Push sent. Enter your M-Pesa PIN."
+);
 
       onClose();
     } catch (error) {

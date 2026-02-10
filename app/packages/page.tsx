@@ -9,6 +9,8 @@ import { InternetPackage } from "@/types/package";
 export default function PackagesPage() {
   const [selectedPackage, setSelectedPackage] =
     useState<InternetPackage | null>(null);
+    
+const [checkoutRequestID, setCheckoutRequestID] = useState<string | null>(null);
 
   const [activeCategory, setActiveCategory] = useState<
     "all" | "hourly" | "daily" | "weekly" | "monthly" | "family"
@@ -78,6 +80,9 @@ export default function PackagesPage() {
         <MpesaModal
           pkg={selectedPackage}
           onClose={() => setSelectedPackage(null)}
+         onCheckoutCreated={(checkoutID) => {
+      setCheckoutRequestID(checkoutID);
+    }}
         />
       )}
     </main>
