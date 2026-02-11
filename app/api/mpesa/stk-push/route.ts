@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const data = await stkRes.json();
     console.log("SAFARICOM RESPONSE:", data);
 
-    return NextResponse.json(data);
+    return NextResponse.json({checkoutRequestID: data.CheckoutRequestID});
   } catch (error) {
     console.error(error);
     return NextResponse.json(
