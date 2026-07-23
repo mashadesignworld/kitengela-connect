@@ -25,7 +25,7 @@ export default function Navbar() {
           <Link href="/packages" className="hover:text-white transition-colors">
             Packages
           </Link>
-          <Link href="/about" className="hover:text-white transition-colors">
+          {/*<Link href="/about" className="hover:text-white transition-colors">
             About
           </Link>
           <Link href="/contact" className="hover:text-white transition-colors">
@@ -36,7 +36,7 @@ export default function Navbar() {
             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-md shadow-blue-600/20 transition-all"
           >
             Login
-          </Link>
+          </Link>*/}
         </div>
 
         {/* Mobile Hamburger */}
@@ -59,7 +59,7 @@ export default function Navbar() {
           >
             Packages
           </Link>
-          <Link
+           {/*<Link
             href="/about"
             onClick={() => setOpen(false)}
             className="block py-2 hover:text-blue-400 transition-colors"
@@ -79,7 +79,7 @@ export default function Navbar() {
             className="block w-full text-center py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/20"
           >
             Login
-          </Link>
+          </Link>*/}
         </div>
       )}
     </nav>
