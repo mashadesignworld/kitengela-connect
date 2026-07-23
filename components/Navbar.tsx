@@ -2,26 +2,38 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Wifi, Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-green-500 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/packages" className="text-white text-xl font-bold">
-          Kitengela Connect
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="p-2 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+            <Wifi className="w-5 h-5 animate-pulse" />
+          </div>
+          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            Kitengela<span className="text-blue-500">Connect</span>
+          </span>
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6 text-white font-medium items-center">
-          <Link href="/packages">Packages</Link>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
+        <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+          <Link href="/packages" className="hover:text-white transition-colors">
+            Packages
+          </Link>
+          <Link href="/about" className="hover:text-white transition-colors">
+            About
+          </Link>
+          <Link href="/contact" className="hover:text-white transition-colors">
+            Contact
+          </Link>
           <Link
             href="/login"
-            className="bg-white text-blue-600 px-4 py-1 rounded-md font-semibold hover:bg-gray-100"
+            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-md shadow-blue-600/20 transition-all"
           >
             Login
           </Link>
@@ -29,69 +41,45 @@ export default function Navbar() {
 
         {/* Mobile Hamburger */}
         <button
-          className="md:hidden text-white"
+          className="md:hidden p-2 text-slate-300 hover:text-white rounded-lg bg-slate-900 border border-slate-800"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            {open ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Dropdown */}
       {open && (
-        <div className="md:hidden bg-white shadow-md">
-          <div className="flex flex-col px-4 py-4 space-y-4 font-medium">
-            <Link
-              href="/packages"
-              onClick={() => setOpen(false)}
-              className="text-gray-800"
-            >
-              Packages
-            </Link>
-            <Link
-              href="/about"
-              onClick={() => setOpen(false)}
-              className="text-gray-800"
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              onClick={() => setOpen(false)}
-              className="text-gray-800"
-            >
-              Contact
-            </Link>
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="bg-blue-600 text-white text-center py-2 rounded-md font-semibold"
-            >
-              Login
-            </Link>
-          </div>
+        <div className="md:hidden bg-slate-900/95 border-b border-slate-800 px-6 py-5 space-y-4 font-medium text-slate-200">
+          <Link
+            href="/packages"
+            onClick={() => setOpen(false)}
+            className="block py-2 hover:text-blue-400 transition-colors"
+          >
+            Packages
+          </Link>
+          <Link
+            href="/about"
+            onClick={() => setOpen(false)}
+            className="block py-2 hover:text-blue-400 transition-colors"
+          >
+            About
+          </Link>
+          <Link
+            href="/contact"
+            onClick={() => setOpen(false)}
+            className="block py-2 hover:text-blue-400 transition-colors"
+          >
+            Contact
+          </Link>
+          <Link
+            href="/login"
+            onClick={() => setOpen(false)}
+            className="block w-full text-center py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/20"
+          >
+            Login
+          </Link>
         </div>
       )}
     </nav>

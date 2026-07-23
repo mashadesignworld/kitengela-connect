@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getMpesaAccessToken } from "@/lib/mpesa";
+import { prisma } from "@/lib/prisma";
+
 
 export async function POST(req: Request) {
   try {
@@ -49,6 +51,17 @@ export async function POST(req: Request) {
 
     const data = await stkRes.json();
     console.log("SAFARICOM RESPONSE:", data);
+    if (data.ResponseCode === "0") {
+  await prisma.payment.create({
+    data: {
+      phoneNumber: phone,
+      amount: Number(amount),
+      checkoutRequestID: data.CheckoutRequestID,
+      status: "PENDING",
+      callbackData: {},
+    },
+  });
+}
 
     return NextResponse.json({checkoutRequestID: data.CheckoutRequestID});
   } catch (error) {
