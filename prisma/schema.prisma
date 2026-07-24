@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
+  
 }
 
 model User {
@@ -22,7 +22,7 @@ model Payment {
   mpesaReceipt      String?
   status            String
   wifiAccessGranted Boolean  @default(false)
-  callbackData      Json
+  callbackData      Json?
   createdAt         DateTime @default(now())
 
   userId String?

@@ -16,7 +16,7 @@ export default function Home() {
   const handleQuickPay50 = () => {
     setSelectedPackage({
       name: "24-Hour Pass",
-      price: 50,
+      price: 1,
     });
   };
 

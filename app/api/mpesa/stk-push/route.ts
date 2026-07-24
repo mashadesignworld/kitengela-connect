@@ -14,8 +14,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // 1. Get Access Token
     const accessToken = await getMpesaAccessToken();
 
+    // 2. Format Timestamp & Password
     const timestamp = new Date()
       .toISOString()
       .replace(/[^0-9]/g, "")
@@ -25,6 +27,7 @@ export async function POST(req: Request) {
       `${process.env.MPESA_SHORTCODE}${process.env.MPESA_PASSKEY}${timestamp}`
     ).toString("base64");
 
+    // 3. Call Daraja STK Push API
     const stkRes = await fetch(
       "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
       {
@@ -38,7 +41,7 @@ export async function POST(req: Request) {
           Password: password,
           Timestamp: timestamp,
           TransactionType: "CustomerPayBillOnline",
-          Amount: amount,
+          Amount: Math.round(Number(amount)), // Ensure whole integer
           PartyA: phone,
           PartyB: process.env.MPESA_SHORTCODE,
           PhoneNumber: phone,
@@ -51,23 +54,39 @@ export async function POST(req: Request) {
 
     const data = await stkRes.json();
     console.log("SAFARICOM RESPONSE:", data);
-    if (data.ResponseCode === "0") {
-  await prisma.payment.create({
-    data: {
-      phoneNumber: phone,
-      amount: Number(amount),
-      checkoutRequestID: data.CheckoutRequestID,
-      status: "PENDING",
-      callbackData: {},
-    },
-  });
-}
 
-    return NextResponse.json({checkoutRequestID: data.CheckoutRequestID});
-  } catch (error) {
-    console.error(error);
+    // 4. Verify Safaricom Accepted Request
+    if (data.ResponseCode !== "0") {
+      return NextResponse.json(
+        { 
+          error: data.CustomerMessage || data.ResponseDescription || "STK Push rejected by Safaricom",
+          data 
+        },
+        { status: 400 }
+      );
+    }
+
+    // 5. Create Pending Record in Supabase via Prisma
+    const payment = await prisma.payment.create({
+      data: {
+        phoneNumber: String(phone),
+        amount: Number(amount),
+        checkoutRequestID: data.CheckoutRequestID,
+        status: "PENDING",
+        callbackData: {},
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      checkoutRequestID: data.CheckoutRequestID,
+      paymentId: payment.id,
+    });
+
+  } catch (error: any) {
+    console.error("STK Push Route Error:", error);
     return NextResponse.json(
-      { error: "STK Push failed" },
+      { error: error.message || "STK Push failed" },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface WifiPackage {
   name: string;
@@ -29,6 +29,7 @@ export default function MpesaModal({
   const [phone, setPhone] = useState("");
   const [paymentState, setPaymentState] = useState<PaymentState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
   const [wifiDetails, setWifiDetails] = useState<WifiDetails | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -66,6 +67,12 @@ export default function MpesaModal({
         }),
       });
 
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Server Error Response:", errorText);
+        throw new Error(`Server returned status ${res.status}. Check terminal logs.`);
+      }
+
       const data = await res.json();
 
       if (!data.checkoutRequestID) {
@@ -74,6 +81,7 @@ export default function MpesaModal({
         return;
       }
 
+      setCheckoutRequestId(data.checkoutRequestID);
       onCheckoutCreated(data.checkoutRequestID);
       setPaymentState("pending");
     } catch (error) {
@@ -82,6 +90,39 @@ export default function MpesaModal({
       setErrorMessage("Payment failed. Please try again.");
     }
   };
+
+  // --- POLLING EFFECT FOR MPESA PAYMENT STATUS ---
+  useEffect(() => {
+    if (paymentState !== "pending" || !checkoutRequestId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/mpesa/status?checkoutRequestID=${checkoutRequestId}`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        // Standardize status checks based on callback responses
+        if (data.status === "PAID" || data.status === "SUCCESS" || data.wifiAccessGranted) {
+          setWifiDetails({
+            ssid: data.wifiSSID || "Kitengela_Connect_5G",
+            password: data.wifiPassword || "KiteNet#2026",
+            duration: pkg.name,
+          });
+          setPaymentState("success");
+          clearInterval(interval);
+        } else if (data.status === "FAILED" || data.status === "CANCELLED") {
+          setPaymentState("error");
+          setErrorMessage("Transaction was cancelled or failed on phone.");
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.error("Polling status error:", err);
+      }
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [paymentState, checkoutRequestId, pkg.name]);
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex justify-center items-center z-50 p-4">
@@ -187,6 +228,10 @@ export default function MpesaModal({
             <p className="text-sm text-slate-400">
               Enter your M-Pesa PIN to complete payment.
             </p>
+            <div className="flex items-center space-x-2 text-xs text-slate-500">
+              <div className="h-2 w-2 bg-emerald-500 rounded-full animate-ping" />
+              <span>Waiting for confirmation...</span>
+            </div>
 
             <button
               onClick={onClose}
